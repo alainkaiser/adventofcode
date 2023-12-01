@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-namespace AdventOfCode;
+﻿namespace AdventOfCode;
 
 public sealed class Day01 : BaseDay
 {
@@ -47,47 +45,45 @@ public sealed class Day01 : BaseDay
             { "one", 1 }, { "two", 2 }, { "three", 3 }, { "four", 4 },
             { "five", 5 }, { "six", 6 }, { "seven", 7 }, { "eight", 8 }, { "nine", 9 }
         };
-        
+
         int sum = 0;
 
         foreach (var line in _input)
         {
-            int? firstNumber = null;
-            int? lastNumber = null;
+            string firstNumber = null;
+            string lastNumber = null;
 
             for (var i = 0; i < line.Length; i++)
             {
                 foreach (var wordDigit in wordDigits)
                 {
                     if (line.Length - i >= wordDigit.Key.Length &&
-                        line.Substring(i, wordDigit.Key.Length).Equals(wordDigit.Key, StringComparison.OrdinalIgnoreCase))
+                        line.Substring(i, wordDigit.Key.Length)
+                            .Equals(wordDigit.Key, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (!firstNumber.HasValue)
+                        if (string.IsNullOrEmpty(firstNumber))
                         {
-                            firstNumber = wordDigit.Value;
+                            firstNumber = wordDigit.Value.ToString();
                         }
-                        
-                        lastNumber = wordDigit.Value;
+
+                        lastNumber = wordDigit.Value.ToString();
                         i += wordDigit.Key.Length - 1; // Skip the word digit
                         break;
                     }
                 }
 
-                if (!firstNumber.HasValue && char.IsDigit(line[i]))
+                if (string.IsNullOrEmpty(firstNumber) && char.IsDigit(line[i]))
                 {
-                    firstNumber = line[i];
+                    firstNumber = line[i].ToString();
                 }
 
                 if (char.IsDigit(line[i]))
                 {
-                    lastNumber = line[i];
+                    lastNumber = line[i].ToString();
                 }
             }
 
-            if (firstNumber.HasValue && lastNumber.HasValue)
-            {
-                sum += int.Parse(firstNumber + lastNumber.ToString());
-            }
+            sum += int.Parse(firstNumber + lastNumber);
         }
 
         return new ValueTask<string>(sum.ToString());
