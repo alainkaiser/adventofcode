@@ -58,8 +58,7 @@ public sealed class Day01 : BaseDay
                 foreach (var wordDigit in wordDigits)
                 {
                     if (line.Length - i >= wordDigit.Key.Length &&
-                        line.Substring(i, wordDigit.Key.Length)
-                            .Equals(wordDigit.Key, StringComparison.OrdinalIgnoreCase))
+                        line.Substring(i, wordDigit.Key.Length) == wordDigit.Key)
                     {
                         if (string.IsNullOrEmpty(firstNumber))
                         {
@@ -67,8 +66,6 @@ public sealed class Day01 : BaseDay
                         }
 
                         lastNumber = wordDigit.Value.ToString();
-                        i += wordDigit.Key.Length - 1; // Skip the word digit
-                        break;
                     }
                 }
 
