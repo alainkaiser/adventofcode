@@ -42,91 +42,30 @@ public sealed class Day01 : BaseDay
 
     public override ValueTask<string> Solve_2()
     {
-        var calibrationValues = new List<int>();
-        
-        var wordDigits = new Dictionary<string, int>()
-        {
-            {"one", 1},
-            {"two", 2},
-            {"three", 3},
-            {"four", 4},
-            {"five", 5},
-            {"six", 6},
-            {"seven", 7},
-            {"eight", 8},
-            {"nine", 9}
-        };
-        
-        // Loop trough all the lines in the input file
-        foreach (var line in _input)
-        {
-            var wordDigitsOccurrence = new Dictionary<int, string>();
-            
-            // Gather some infos about written digits in the line first
-            foreach (var wordDigit in wordDigits.Keys)
-            {
-                if (line.Contains(wordDigit, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    // Get all starting indexes of the word digit
-                    var indexes = Regex.Matches(line, wordDigit, RegexOptions.IgnoreCase)
-                        .Select(match => match.Index);
-                    
-                    // Add all the starting indexes to the dictionary
-                    foreach (var index in indexes)
-                    {
-                        wordDigitsOccurrence.Add(index, wordDigit);
-                    }
-                }
-            }
-            
-            string firstNumberChar = null;
-            string lastNumberChar = null;
-            
-            // Loop trough all the chars in one line
-            for (var i = 0; i < line.Length; i++)
-            {
-                // Check if value is a digit
-                if (char.IsDigit(line[i]))
-                {
-                    if (string.IsNullOrEmpty(firstNumberChar))
-                    {
-                        firstNumberChar = line[i].ToString();
-                    }
-                    
-                    lastNumberChar = line[i].ToString();
-                }
-                else
-                {
-                    // Check if we have any written digit starting at index i. If so, use it as our first number and last number
-                    if(wordDigitsOccurrence.TryGetValue(i, out var foundWrittenDigit))
-                    {
-                        if (string.IsNullOrEmpty(firstNumberChar))
-                        {
-                            firstNumberChar = foundWrittenDigit;   
-                        }
-                        
-                        lastNumberChar = foundWrittenDigit;
-                    }
-                }
-            }
-            
-            // Check if first and/or last number is a written digit and extract the number from the dictionary
-            if(wordDigits.TryGetValue(firstNumberChar, out var firstNumber))
-            {
-                firstNumberChar = firstNumber.ToString();
-            }
-            if(wordDigits.TryGetValue(lastNumberChar, out var lastNumber))
-            {
-                lastNumberChar = lastNumber.ToString();
-            }
-            
-            // Add the calibration value to the list
-            var combinedNumberString = firstNumberChar + lastNumberChar;
-            calibrationValues.Add(int.Parse(combinedNumberString));
-        }
-        
-        // Get sum of all the calibration values
-        var sum = calibrationValues.Sum();
-        return new ValueTask<string>(sum.ToString());
+        var result = PartTwo(File.ReadAllText(InputFilePath));
+        return new ValueTask<string>(result.ToString());
     }
+    
+    public object PartTwo(string input) => 
+        Solve(input, @"\d|one|two|three|four|five|six|seven|eight|nine");
+
+    int Solve(string input, string rx) => (
+        from line in input.Split("\n")
+        let first = Regex.Match(line, rx)
+        let last = Regex.Match(line, rx, RegexOptions.RightToLeft)
+        select ParseMatch(first.Value) * 10 + ParseMatch(last.Value)
+    ).Sum();
+
+    int ParseMatch(string st) => st switch {
+        "one" => 1,
+        "two" => 2,
+        "three" => 3,
+        "four" => 4,
+        "five" => 5,
+        "six" => 6,
+        "seven" => 7,
+        "eight" => 8,
+        "nine" => 9,
+        var d => int.Parse(d)
+    };
 }
