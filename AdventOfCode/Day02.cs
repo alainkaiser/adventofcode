@@ -10,15 +10,17 @@ public sealed class Day02 : BaseDay
     private const int GreenConstraint = 13;
     private const int BlueConstraint = 14;
 
+    private readonly Dictionary<string, List<(string, int)>> _games = new();
+
     public Day02()
     {
         _input = File.ReadAllLines(InputFilePath);
+        _games = GetParsedGameInput(_input);
     }
 
     public override ValueTask<string> Solve_1()
     {
-        var games = GetParsedGameInput(_input);
-        var sum = (from game in games
+        var sum = (from game in _games
                 let validGame = game.Value.All(DoesBlockFullfillConstraints)
                 where validGame
                 select int.Parse(game.Key))
@@ -29,9 +31,7 @@ public sealed class Day02 : BaseDay
 
     public override ValueTask<string> Solve_2()
     {
-        var games = GetParsedGameInput(_input);
-
-        var sum = (from game in games
+        var sum = (from game in _games
                 let maxBlue = game.Value.Where(b => b.Item1 == "blue").Max(b => b.Item2)
                 let maxRed = game.Value.Where(b => b.Item1 == "red").Max(b => b.Item2)
                 let maxGreen = game.Value.Where(b => b.Item1 == "green").Max(b => b.Item2)
