@@ -29,7 +29,17 @@ public sealed class Day02 : BaseDay
 
     public override ValueTask<string> Solve_2()
     {
-        throw new NotImplementedException();
+        var games = GetParsedGameInput(_input);
+
+        var sum = (from game in games
+                let maxBlue = game.Value.Where(b => b.Item1 == "blue").Max(b => b.Item2)
+                let maxRed = game.Value.Where(b => b.Item1 == "red").Max(b => b.Item2)
+                let maxGreen = game.Value.Where(b => b.Item1 == "green").Max(b => b.Item2)
+                let result = maxBlue * maxRed * maxGreen
+                select result
+            ).Sum();
+
+        return new ValueTask<string>(sum.ToString());
     }
 
     private Dictionary<string, List<(string, int)>> GetParsedGameInput(string[] input)
