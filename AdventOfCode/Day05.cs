@@ -1,7 +1,4 @@
 using System.Collections.Concurrent;
-using System.Net;
-using System.Numerics;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace AdventOfCode;
@@ -24,7 +21,7 @@ public sealed partial class Day05 : BaseDay
     {
         var seeds = GetSeeds(_input[0]);
         var maps = GetMaps();
-        
+
         var locations = new List<Int128>();
 
         foreach (var seed in seeds)
@@ -45,7 +42,7 @@ public sealed partial class Day05 : BaseDay
 
                         // Calculate the value from the destination
                         location = mapPart.DestinationRangeStart + offset;
-                        
+
                         // We found the correct location, so we can break out of the loop
                         break;
                     }
@@ -60,7 +57,59 @@ public sealed partial class Day05 : BaseDay
 
     public override ValueTask<string> Solve_2()
     {
-        return new ValueTask<string>("0");
+        var seedRanges = GetSeedRanges(_input[0]);
+        var maps = GetMaps().Select(map => map.OrderBy(m => m.SourceRangeStart).ToList()).ToList();
+        var minLocations = new ConcurrentQueue<Int128>();
+
+        Parallel.ForEach(seedRanges, (range) =>
+        {
+            var localMin = Int128.MaxValue;
+
+            for (var seed = range.start; seed < range.start + range.length; seed++)
+            {
+                var location = seed;
+                foreach (var map in maps)
+                {
+                    foreach (var mapPart in map.Where(mapPart =>
+                                 location >= mapPart.SourceRangeStart &&
+                                 location < mapPart.SourceRangeStart + mapPart.RangeLength))
+                    {
+                        checked
+                        {
+                            var offset = location - mapPart.SourceRangeStart;
+                            location = mapPart.DestinationRangeStart + offset;
+                        }
+
+                        break;
+                    }
+                }
+
+                if (location < localMin)
+                {
+                    localMin = location;
+                }
+            }
+
+            minLocations.Enqueue(localMin);
+        });
+
+        return new ValueTask<string>(minLocations.Min().ToString());
+    }
+
+    private IEnumerable<(Int128 start, Int128 length)> GetSeedRanges(string firstLineInput)
+    {
+        var seedPairs = firstLineInput
+            .Split(": ")
+            .Skip(1)
+            .First()
+            .Split(" ")
+            .Select(Int128.Parse)
+            .ToArray();
+
+        for (int i = 0; i < seedPairs.Length; i += 2)
+        {
+            yield return (seedPairs[i], seedPairs[i + 1]);
+        }
     }
 
     private IEnumerable<Int128> GetSeeds(string firstLineInput)
