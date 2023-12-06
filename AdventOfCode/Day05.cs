@@ -58,10 +58,13 @@ public sealed partial class Day05 : BaseDay
     public override ValueTask<string> Solve_2()
     {
         var seedRanges = GetSeedRanges(_input[0]);
-        var maps = GetMaps().Select(map => map.OrderBy(m => m.SourceRangeStart).ToList()).ToList();
+        var maps = GetMaps().ToList();
         var minLocations = new ConcurrentQueue<Int128>();
 
-        Parallel.ForEach(seedRanges, (range) =>
+        Parallel.ForEach(seedRanges, new ParallelOptions
+        {
+            MaxDegreeOfParallelism = Environment.ProcessorCount
+        }, (range) =>
         {
             var localMin = Int128.MaxValue;
 
@@ -74,11 +77,8 @@ public sealed partial class Day05 : BaseDay
                                  location >= mapPart.SourceRangeStart &&
                                  location < mapPart.SourceRangeStart + mapPart.RangeLength))
                     {
-                        checked
-                        {
-                            var offset = location - mapPart.SourceRangeStart;
-                            location = mapPart.DestinationRangeStart + offset;
-                        }
+                        var offset = location - mapPart.SourceRangeStart;
+                        location = mapPart.DestinationRangeStart + offset;
 
                         break;
                     }
@@ -106,7 +106,7 @@ public sealed partial class Day05 : BaseDay
             .Select(Int128.Parse)
             .ToArray();
 
-        for (int i = 0; i < seedPairs.Length; i += 2)
+        for (var i = 0; i < seedPairs.Length; i += 2)
         {
             yield return (seedPairs[i], seedPairs[i + 1]);
         }
