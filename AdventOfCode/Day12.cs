@@ -22,8 +22,6 @@ public sealed class Day12 : BaseDay
 
     public override ValueTask<string> Solve_1()
     {
-        Console.WriteLine(MaxProduct([3, 4, 5, 2]));
-
         var records = ParseInput();
         var validVariants = 0;
 
@@ -33,22 +31,6 @@ public sealed class Day12 : BaseDay
         }
 
         return new ValueTask<string>(validVariants.ToString());
-    }
-
-    public int MaxProduct(int[] nums)
-    {
-        var maxProduct = 0;
-
-        for (var i = 0; i < nums.Length; i++)
-        {
-            for (var j = 0; j < nums.Length; j++)
-            {
-                if (i == j) continue;
-                maxProduct = Math.Max((nums[i] - 1) * (nums[j] - 1), maxProduct);
-            }
-        }
-
-        return maxProduct;
     }
 
     public override ValueTask<string> Solve_2()
